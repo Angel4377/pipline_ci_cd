@@ -6,7 +6,7 @@ spring:
     name: price-service
 
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:5432/${DB_NAME:price-db}
+    url: jdbc:postgresql://${DB_HOST:postgres-report-db}:5432/${DB_NAME:price-db}
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:passer}
     driver-class-name: org.postgresql.Driver

@@ -3,9 +3,8 @@ version: '3.8'
 services:
 
   postgres-price-db:
-    image: nguenar13/price-service:latest
-
-    container_name: heuristic_lumiere
+    image: postgres:15
+    container_name: price-service
     environment:
       POSTGRES_DB: price-db
       POSTGRES_USER: postgres
@@ -26,7 +25,7 @@ services:
 
   price-service:
     build: src/main/java/com/example/priceservice
-    container_name: heuristic_lumiere
+    container_name: price-service
     ports:
       - "8081:8081"
     depends_on:
