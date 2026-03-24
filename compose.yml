@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+
+  postgres-price-db:
+    image: nguenar13/price-service:latest
+
+    container_name: heuristic_lumiere
+    environment:
+      POSTGRES_DB: price-db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: passer
+    ports:
+      - "5432:5432"
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  price-service:
+    build: src/main/java/com/example/priceservice
+    container_name: heuristic_lumiere
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres-price-db
+      - rabbitmq
+      - redis
+    environment:
+      DB_HOST: localhost
+      DB_NAME: price-db
+      DB_USERNAME: postgres
+      DB_PASSWORD: passer
+      RABBIT_HOST: rabbitmq
+      REDIS_HOST: redis

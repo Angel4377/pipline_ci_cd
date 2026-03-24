@@ -1,0 +1,67 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: price-service
+
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:5432/${DB_NAME:price-db}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:passer}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  messages:
+    basename: messages
+    encoding: UTF-8
+
+  rabbitmq:
+    host: ${RABBIT_HOST:rabbitmq}
+    port: 5672
+    username: guest
+    password: guest
+
+    queue: price-queue
+    exchange: price-exchange
+    routingkey: price-routing-key
+
+    cache:
+      type: redis
+
+    data:
+      redis:
+        host: ${REDIS_HOST:redis}
+        port: 6379
+        timeout: 60000
+        ssl:
+          enabled: false
+
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: health,info,metrics
+
+    endpoint:
+      health:
+        show-details: ALWAYS
+
+  info:
+    application:
+      name: price-service
+      version: '@project.version@'
+
+  logging:
+    level:
+      org.springframework.web: DEBUG
+    file:
+      name: logs/logs.log
