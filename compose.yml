@@ -1,41 +1,41 @@
-version: '3.8'
 
 services:
 
   postgres-price-db:
     image: postgres:15
-    container_name: price-service
     environment:
       POSTGRES_DB: price-db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: passer
     ports:
       - "5432:5432"
+    networks:
+      - price-service-network
 
-  rabbitmq:
-    image: rabbitmq:3-management
-    ports:
-      - "5672:5672"
-      - "15672:15672"
 
-  redis:
-    image: redis:7
-    ports:
-      - "6379:6379"
 
   price-service:
-    build: src/main/java/com/example/priceservice
+    build: .
     container_name: price-service
     ports:
       - "8081:8081"
     depends_on:
       - postgres-price-db
-      - rabbitmq
-      - redis
     environment:
-      DB_HOST: localhost
+      DB_HOST: postgres-price-db
       DB_NAME: price-db
       DB_USERNAME: postgres
       DB_PASSWORD: passer
       RABBIT_HOST: rabbitmq
-      REDIS_HOST: redis
+      REDIS_HOST: redis-server
+    networks:
+      - price-service-network
+      - regulation-platform-network
+
+# Definition des networks
+networks:
+  # Network commune a tous les microservices
+  regulation-platform-network:
+    external: true
+  # Network interne pour chaque ms permettant la connexion entre les container d'un ms
+  price-service-network:

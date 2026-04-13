@@ -1,41 +1,68 @@
 package com.example.priceservice.config;
-import org.springframework.amqp.core.Binding;
-import org.springframework.amqp.core.BindingBuilder;
-import org.springframework.amqp.core.ExchangeBuilder;
-import org.springframework.amqp.core.Queue;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
-
-
-
+import org.springframework.amqp.core.*;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-    @Configuration
-    public class RabbitMQConfig {
-        public static final String QUEUE = "report-queue";
-        public static final String EXCHANGE = "report-exchange";
-        public static final String ROUTING_KEY = "report-routing-key";
 
-        @Bean
-        public Queue reportQueue() {
-            return new Queue(QUEUE, true); // durable
-        }
+@Configuration
+public class RabbitMQConfig {
 
-        @Bean
-        public org.springframework.amqp.core.Exchange reportExchange() {
-            return ExchangeBuilder.directExchange(EXCHANGE).durable(true).build();
-        }
 
-        @Bean
-        public Binding binding(Queue reportQueue, org.springframework.amqp.core.Exchange reportExchange) {
-            return BindingBuilder.bind(reportQueue).to(reportExchange).with(ROUTING_KEY).noargs();
-        }
-            @Bean
-            public Jackson2JsonMessageConverter jsonMessageConverter() {
-                return new Jackson2JsonMessageConverter();
-            }
+    @Bean
+    public MessageConverter jsonMessageConverter() {
+        return new Jackson2JsonMessageConverter();
+    }
 
+    @Bean
+    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
+        RabbitTemplate template = new RabbitTemplate(connectionFactory);
+        template.setMessageConverter(jsonMessageConverter());
+        return template;
+    }
+
+    @Bean
+    public DirectExchange exchange() {
+        return new DirectExchange("regulation-exchange");
+    }
+
+    @Bean
+    public Queue priceQueue() {
+        return new Queue("price-queue");
+    }
+
+    @Bean
+    public Queue reportQueue() {
+        return new Queue("report-queue");
+    }
+
+    @Bean
+    public Queue userQueue() {
+        return new Queue("user-queue");
+    }
+
+    @Bean
+    public Binding priceBinding() {
+        return BindingBuilder.bind(priceQueue())
+                .to(exchange())
+                .with("price-routing-key");
+    }
+
+    @Bean
+    public Binding reportBinding() {
+        return BindingBuilder.bind(reportQueue())
+                .to(exchange())
+                .with("report-routing-key");
+    }
+
+    @Bean
+    public Binding userBinding() {
+        return BindingBuilder.bind(userQueue())
+                .to(exchange())
+                .with("user-routing-key");
+    }
 }

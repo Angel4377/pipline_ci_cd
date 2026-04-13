@@ -12,13 +12,14 @@ import org.springframework.web.client.RestTemplate;
 
     private final RestTemplate restTemplate;
 
-    private final String USER_SERVICE_URL = "http://localhost:8082/users";
+    private final String USER_SERVICE_URL = "http://user-service:8082/users";
 
     @Override
     public UserDTO getUserById(Long userId) {
         try {
             return restTemplate.getForObject(USER_SERVICE_URL + "/" + userId, UserDTO.class);
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             return null;
         }
 
